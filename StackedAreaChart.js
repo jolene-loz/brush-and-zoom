@@ -37,10 +37,10 @@ export default function StackedAreaChart(container){
     var yAxis = d3.axisLeft()
         .scale(yScale);
 
-    svg.append("g")
+    var xAxisGroup = svg.append("g")
         .attr('class', 'axis x-axis');
 
-    svg.append('g')
+     var yAxisGroup = svg.append('g')
         .attr('class', 'axis y-axis');
 
     const tooltip = svg
@@ -74,32 +74,31 @@ export default function StackedAreaChart(container){
                 .scaleLinear()
                 .range([height,0])
     
-            svg.append("path")
-            .attr("fill", d=>colorScale(selected))
-            .attr("class", "area3")
-            .attr("clip-path", "url(#clip)")
-            .on("click", (event, d) => {
-                update(data)
-            })
+
     
             //=== Create & Initialize Axes ===
-            var xAxis = d3.axisBottom()
+            let xAxis = d3.axisBottom()
                 .scale(xScale);
     
-            var yAxis = d3.axisLeft()
+            let yAxis = d3.axisLeft()
                 .scale(yScale);
-    
-            let xAxisGroup = svg.append("g")
-                .attr('class', 'axis x-axis');
-    
-            let yAxisGroup = svg.append('g')
-                .attr('class', 'axis y-axis');
+
+        
                 
             xScale
                 .domain(xDomain? xDomain: d3.extent(data, d=>d.date));
             yScale
                 .domain([0, d3.max(data, d=>d[selected])]);
-    
+
+            svg.append("path")
+                .attr("fill", d=>colorScale(selected))
+                .attr("class", "area3")
+                .attr("clip-path", "url(#clip)")
+                .on("click", (event, d) => {
+                    update(data)
+            })
+            
+        
             var area3 = d3.area()
                 .x(function(d) { return xScale(d.date); })
                 .y0(function() { return yScale(0); })
@@ -108,17 +107,10 @@ export default function StackedAreaChart(container){
             d3.select(".area3")
                 .datum(data)
                 .attr("d",area3)
-            area3.exit().remove()
-            
-                xAxisGroup
-                .call(xAxis)
-                .attr("transform", `translate(0, ${height})`);
-            
-            yAxisGroup
-                .call(yAxis)
 
 
-            
+            xAxisGroup.call(xAxis)
+            yAxisGroup.call(yAxis)
 
             }    
     
@@ -126,11 +118,8 @@ export default function StackedAreaChart(container){
             function update(_data){ 
                 svg.selectAll('.area3').remove()
                 selected = null
-                console.log("UUPDATE", data)
+                console.log("UPDATE", data)
                 data = _data;
-        
-                // let fieldkeys = 
-                // console.log(fieldkeys)
         
                 const keys = selected? [selected] : data.columns.slice(1)
         
@@ -140,6 +129,7 @@ export default function StackedAreaChart(container){
                     .keys(data.columns.slice(1))
                     .order(d3.stackOrderNone)
                     .offset(d3.stackOffsetNone);
+                
             
                 var series = stack(data);
         
@@ -148,38 +138,37 @@ export default function StackedAreaChart(container){
                 yScale
                     .domain([0, d3.max(data, d=>d.total)]);
         
-       
-    
-                    
-            var colorScale = d3.scaleOrdinal(d3.schemeTableau10)
-                .domain(data.columns.slice(1));
-        
-            var area2 = d3.area()
-                .x(d=>xScale(d.data.date))
-                .y0(d=>yScale(d[0]))
-                .y1(d=>yScale(d[1]))
-
+                var colorScale = d3.scaleOrdinal(d3.schemeTableau10)
+                    .domain(data.columns.slice(1));
             
-            svg.selectAll("path")
-            .data(series)
-            .join("path")
-            .attr("fill", d=>colorScale(d.key))
-            .attr("d", area2)  
-            .attr("clip-path", "url(#clip)")
-            .on("mouseover", (event, d, i) => tooltip.text(d.key))
-            .on("mouseout", (event, d, i) => tooltip.text(""))
-            .on("click", (event, d) => {
-                    console.log("ELSE")
-                    selected = d.key;
-                    svg.selectAll('path').remove()
-                    updateMain(selected, data, svg)
-            })
+                const area2 = d3.area()
+                    .x(d=>xScale(d.data.date))
+                    .y0(d=>yScale(d[0]))
+                    .y1(d=>yScale(d[1]))
 
-        svg.select('.x-axis')
-            .call(xAxis)
-            .attr("transform", `translate(0, ${height})`);
-        svg.select('.y-axis')
-            .call(yAxis)
+                
+                let paths = svg.selectAll("path")
+                .data(series)
+                .join("path")
+                .attr("fill", d=>colorScale(d.key))
+                .attr("d", area2)  
+                .attr("clip-path", "url(#clip)")
+                .on("mouseover", (event, d, i) => tooltip.text((d.key).replace(/_/g,' ')))
+                .on("mouseout", (event, d, i) => tooltip.text(""))
+                .on("click", (event, d) => {
+                        console.log("ELSE")
+                        selected = d.key;
+                        svg.selectAll('path').remove()
+                        updateMain(selected, data, svg)
+                })
+            
+          
+           xAxisGroup
+                .call(xAxis)
+                .attr("transform", `translate(0, ${height})`);
+            yAxisGroup
+                .call(yAxis)
+            
 
 
     }
