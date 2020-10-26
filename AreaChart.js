@@ -69,10 +69,7 @@ export default function AreaChart(container){
             .x(function(d) { return xScale(d.date); })
             .y0(function() { return yScale(0); })
             .y1(function(d) { return yScale(d.total); })
-            
-            
 
-        
         d3.select(".area")
             .datum(data)
             .attr("d",area)
@@ -94,6 +91,5 @@ export default function AreaChart(container){
             .attr("transform", `translate(0, ${height})`);
         svg.select('.y-axis')
             .call(yAxis)
-
     }
 };
