@@ -2,7 +2,7 @@ export default function StackedAreaChart(container){
 
     const margin = ({ top: 40, right: 20, bottom: 40, left: 90 });
     const width = 650 - margin.left - margin.right;
-    const height = 150 - margin.top - margin.bottom;
+    const height = 400 - margin.top - margin.bottom;
 
     let svg = d3
         .select(container)
@@ -93,6 +93,7 @@ export default function StackedAreaChart(container){
                 }
                     update(data); // simply update the chart again
             })
+        console.log(svg.exit())
         svg.exit().remove()
         drawAxes();    
     }
