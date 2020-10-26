@@ -32,59 +32,92 @@ export default function StackedAreaChart(container){
 
     svg.append('g')
         .attr('class', 'axis y-axis');
+
+    const tooltip = svg
+        .append("text")
+        .attr('x', 0)
+        .attr('y', -10)
+        .attr('font-size', 14);
     
+
+    let selected = null, xDomain, data;
+
+
     //====Update function====
-    function update(data){ 
+    function update(_data){ 
+
+        data = _data;
 
         let fieldkeys = data.columns.slice(1)
+        const keys = selected? [selected] : fieldkeys; 
+
         console.log(fieldkeys)
-    
     
         var stack = d3.stack()
             .keys(fieldkeys)
             .order(d3.stackOrderNone)
             .offset(d3.stackOffsetNone);
     
-        var series = stack(data);
+        let series = stack(data);
     
-
         xScale
-            .domain(d3.extent(data, d=>d.date));
+            .domain(xDomain? xDomain: d3.extent(data, d=>d.date));
         yScale
             .domain([0, d3.max(data, d=>d.total)]);
 
-        var area = d3.area()
-            .x(d=>xScale(d.data.date)) //when this is changed it doesn't show anymore
-            .y0(d=>yScale(d[0]))
-            .y1(d=>yScale(d[1]))
-        
-        d3.select(".area")
+        d3.select(".area2")
             .datum(data)
-            .attr("d",area)
-
-        
+            .attr("d",area2)
+              
         xScale.domain(d3.extent(data, d=>d.date))
         yScale.domain([0, d3.max(series, d => d3.max(d, d => d[1]))])
 
         var colorScale = d3.scaleOrdinal(d3.schemeTableau10)
             .domain(fieldkeys);
 
-        var area = d3.area()
+        // const keys = selected? [selected] :
+
+        var area2 = d3.area()
             .x(d=>xScale(d.data.date))
             .y0(d=>yScale(d[0]))
             .y1(d=>yScale(d[1]))
 
+
+        svg.selectAll("path")
+            .data(series)
+            .join("path")
+            .attr("fill", d=>colorScale(d.key))
+            .attr("d", area2)  
+            .on("mouseover", (event, d, i) => tooltip.text(d.key))
+            .on("mouseout", (event, d, i) => tooltip.text(""))
+            .on("click", (event, d) => {
+                // toggle selected based on d.key
+                if (selected === d.key) {
+                        selected = null;
+                } else {
+                    selected = d.key;
+                }
+                    update(data); // simply update the chart again
+            });
+         
         svg.selectAll("path")
             .data(series)
             .join("path")
             .attr("fill", d=>colorScale(d.key))
-            .attr("d", area)  
+            .attr("d", area2)  
 
         drawAxes();
+
+        
+    }
+    function filterByDate(range){
+        xDomain = range; 
+        update(data);
     }
 
 	return {
-		update
+        update, 
+        filterByDate
     }
     
     function drawAxes(){
@@ -93,8 +126,8 @@ export default function StackedAreaChart(container){
             .attr("transform", `translate(0, ${height})`);
         svg.select('.y-axis')
             .call(yAxis)
-
     }
+
 };
 
 
