@@ -68,20 +68,14 @@ export default function StackedAreaChart(container){
         d3.select(".area2")
             .datum(data)
             .attr("d",area2)
-              
-        xScale.domain(d3.extent(data, d=>d.date))
-        yScale.domain([0, d3.max(series, d => d3.max(d, d => d[1]))])
 
         var colorScale = d3.scaleOrdinal(d3.schemeTableau10)
             .domain(fieldkeys);
-
-        // const keys = selected? [selected] :
 
         var area2 = d3.area()
             .x(d=>xScale(d.data.date))
             .y0(d=>yScale(d[0]))
             .y1(d=>yScale(d[1]))
-
 
         svg.selectAll("path")
             .data(series)
@@ -93,23 +87,16 @@ export default function StackedAreaChart(container){
             .on("click", (event, d) => {
                 // toggle selected based on d.key
                 if (selected === d.key) {
-                        selected = null;
+                    selected = null;
                 } else {
                     selected = d.key;
                 }
                     update(data); // simply update the chart again
-            });
-         
-        svg.selectAll("path")
-            .data(series)
-            .join("path")
-            .attr("fill", d=>colorScale(d.key))
-            .attr("d", area2)  
-
-        drawAxes();
-
-        
+            })
+        svg.exit().remove()
+        drawAxes();    
     }
+
     function filterByDate(range){
         xDomain = range; 
         update(data);

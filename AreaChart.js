@@ -3,6 +3,7 @@ export default function AreaChart(container){
     const margin = ({ top: 40, right: 20, bottom: 40, left: 90 });
     const width = 650 - margin.left - margin.right;
     const height = 150 - margin.top - margin.bottom;
+    let selection;
     
     let svg = d3
         .select(container)
@@ -51,7 +52,7 @@ export default function AreaChart(container){
     function brushed(event) {
         if (event.selection) {
           console.log("brushed", event.selection);
-          listeners["brushed"](selection.map(xScale.invert));
+          listeners["brushed"](event.selection.map(xScale.invert));
         }
       }
 
@@ -67,7 +68,10 @@ export default function AreaChart(container){
         var area = d3.area()
             .x(function(d) { return xScale(d.date); })
             .y0(function() { return yScale(0); })
-            .y1(function(d) { return yScale(d.total); });
+            .y1(function(d) { return yScale(d.total); })
+            
+            
+
         
         d3.select(".area")
             .datum(data)

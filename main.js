@@ -13,15 +13,17 @@ d3.csv('unemployment.csv', d3.autoType).then(data => {
         return d;}
     );
 
-    let areaChart = AreaChart(".area-chart");
-    areaChart.update(fields);
 
-    // areaChart.on("brushed", (range)=>{
-    //     stackedAreaChart.filterByDate(range); // coordinating with stackedAreaChart
-    // })
 
     let stackedAreaChart = StackedAreaChart(".stacked-area-chart");
     stackedAreaChart.update(fields);
+
+    let areaChart = AreaChart(".area-chart");
+    areaChart.update(fields);
+    
+    areaChart.on("brushed", (range)=>{
+        stackedAreaChart.filterByDate(range); // coordinating with stackedAreaChart
+    })
 
 });
 
