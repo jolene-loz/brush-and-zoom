@@ -108,13 +108,18 @@ export default function StackedAreaChart(container){
             d3.select(".area3")
                 .datum(data)
                 .attr("d",area3)
-    
-                svg.select('.x-axis')
+            area3.exit().remove()
+            
+                xAxisGroup
                 .call(xAxis)
                 .attr("transform", `translate(0, ${height})`);
             
-            svg.select('.y-axis')
+            yAxisGroup
                 .call(yAxis)
+
+
+            
+
             }    
     
             //====Update function====
@@ -143,14 +148,8 @@ export default function StackedAreaChart(container){
                 yScale
                     .domain([0, d3.max(data, d=>d.total)]);
         
-                function drawAxes(){
-                        svg.select('.x-axis')
-                            .call(xAxis)
-                            .attr("transform", `translate(0, ${height})`);
-                        svg.select('.y-axis')
-                            .call(yAxis)
-                
-                    }
+       
+    
                     
             var colorScale = d3.scaleOrdinal(d3.schemeTableau10)
                 .domain(data.columns.slice(1));
@@ -175,7 +174,14 @@ export default function StackedAreaChart(container){
                     svg.selectAll('path').remove()
                     updateMain(selected, data, svg)
             })
-        drawAxes();
+
+        svg.select('.x-axis')
+            .call(xAxis)
+            .attr("transform", `translate(0, ${height})`);
+        svg.select('.y-axis')
+            .call(yAxis)
+
+
     }
         
     function filterByDate(range){
@@ -195,13 +201,6 @@ export default function StackedAreaChart(container){
         filterByDate
     }
     
-    function drawAxes(){
-        svg.select('.x-axis')
-            .call(xAxis)
-            .attr("transform", `translate(0, ${height})`);
-        svg.select('.y-axis')
-            .call(yAxis)
-    }
 
 };
 
