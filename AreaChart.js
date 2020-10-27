@@ -1,7 +1,9 @@
 export default function AreaChart(container){
 
+    // ==== Initialization ===
+
     const margin = ({ top: 40, right: 20, bottom: 40, left: 90 });
-    const width = 650 - margin.left - margin.right;
+    const width = 700 - margin.left - margin.right;
     const height = 150 - margin.top - margin.bottom;
     let selection;
     
@@ -12,6 +14,8 @@ export default function AreaChart(container){
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    //=== Create & Initialize Scales ===
 
     let xScale = d3
         .scaleTime()
@@ -26,11 +30,12 @@ export default function AreaChart(container){
         .attr("fill", 'darkblue')
 
     //=== Create & Initialize Axes ===
-    var xAxis = d3.axisBottom()
-        .scale(xScale);
+    let xAxis = d3.axisBottom()
+        .scale(xScale)
 
-    var yAxis = d3.axisLeft()
-        .scale(yScale);
+    let yAxis = d3.axisLeft()
+        .scale(yScale)
+        .ticks(3);
 
     svg.append("g")
         .attr('class', 'axis x-axis');
@@ -38,7 +43,7 @@ export default function AreaChart(container){
     svg.append('g')
         .attr('class', 'axis y-axis');
 
-    //Brush
+    // === Create Brush ===
     const listeners = { brushed: null };
     
     const brush = d3
@@ -56,7 +61,6 @@ export default function AreaChart(container){
         }
       }
 
-
     //====Update function====
     function update(data){ 
 
@@ -65,7 +69,7 @@ export default function AreaChart(container){
         yScale
             .domain([0, d3.max(data, d=>d.total)]);
 
-        var area = d3.area()
+        let area = d3.area()
             .x(function(d) { return xScale(d.date); })
             .y0(function() { return yScale(0); })
             .y1(function(d) { return yScale(d.total); })
@@ -76,6 +80,7 @@ export default function AreaChart(container){
 
         drawAxes();
     }
+
     function on(event, listener) {
 		listeners[event] = listener;
      }
@@ -85,6 +90,7 @@ export default function AreaChart(container){
         on
     }
     
+    //=== Function to draw axes ===
     function drawAxes(){
         svg.select('.x-axis')
             .call(xAxis)
